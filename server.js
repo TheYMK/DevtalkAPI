@@ -13,3 +13,14 @@ require('dotenv').config();
 
 // express app initialization
 const app = express();
+
+// ============================================================
+//                          Server
+// ============================================================
+
+// port
+const port = process.env.PORT || 8000;
+
+app.listen(port, () => {
+	console.log(`====> Server running on port ${port}...`);
+});
