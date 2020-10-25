@@ -79,3 +79,78 @@ exports.signout = (req, res) => {
 		message: 'Signout success'
 	});
 };
+
+// middleware to apply to any route we want to protect to only logged-in users
+// will compare the incoming token secret with the secret we have in our .env file
+// will return true if the token hasn't expired
+// it also make the user available in request object. Because the token has the user ID and the expiry date
+exports.requireSignin = expressJwt({
+	secret: process.env.JWT_SECRET,
+	algorithms: [ 'HS256' ],
+	userProperty: 'auth' // user available in req.auth as long as there is a valid token
+});
+
+// Admin middleware
+exports.adminMiddleware = (req, res, next) => {
+	const adminUserId = req.auth._id;
+	User.findById({ _id: adminUserId }).exec((err, user) => {
+		if (err || !user) {
+			return res.status(400).json({
+				error: 'User not found'
+			});
+		}
+
+		if (user.role !== 1) {
+			return res.status(400).json({
+				error: 'Admin resource. Access denied'
+			});
+		}
+
+		req.profile = user;
+		next();
+	});
+};
+
+// Freelancer Middleware
+exports.freelancerMiddleware = (req, res, next) => {
+	const freelancerUserId = req.auth._id;
+
+	User.findById({ _id: freelancerUserId }).exec((err, user) => {
+		if (err || !user) {
+			return res.status(400).json({
+				error: 'User not found'
+			});
+		}
+
+		if (user.role !== 3) {
+			return res.status(400).json({
+				error: 'Freelancer resource. Access denied'
+			});
+		}
+
+		req.profile = user;
+		next();
+	});
+};
+
+// Client Middleware
+exports.clientMiddleware = (req, res, next) => {
+	const clientUserId = req.auth._id;
+
+	User.findById({ _id: clientUserId }).exec((err, user) => {
+		if (err || !user) {
+			return res.status(400).json({
+				error: 'User not found'
+			});
+		}
+
+		if (user.role !== 2) {
+			return res.status(400).json({
+				error: 'Client resource. Access denied'
+			});
+		}
+
+		req.profile = user;
+		next();
+	});
+};

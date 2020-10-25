@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema(
 		},
 		role: {
 			type: Number,
-			default: 2 //0 for admins, 1 for clients, 2 for freelancers
+			default: 3 //1 for admins, 2 for clients, 3 for freelancers
 		},
 		photo: {
 			data: Buffer,
