@@ -10,10 +10,46 @@ const express = require('express'),
 require('dotenv').config();
 
 // route importations
-
+const authRoutes = require('./routes/api/auth');
 // express app initialization
 const app = express();
 
 // ============================================================
+//                    Database Connection
+// ============================================================
+mongoose
+	.connect(process.env.DATABASE_CLOUD, {
+		useNewUrlParser: true,
+		useCreateIndex: true,
+		useFindAndModify: false,
+		useUnifiedTopology: true
+	})
+	.then(() => console.log('====> DATABASE CONNECTED'));
+
+// ============================================================
+//                   Middlewares
+// ============================================================
+app.use(morgan('dev'));
+app.use(bodyParser.json());
+app.use(cookieParser());
+
+// cors - (works only in browser to browser communication)
+if (process.env.NODE_ENV === 'development') {
+	app.use(cors({ origin: `${process.env.CLIENT_URL}` }));
+}
+
+// ============================================================
+//                      Route Middlewares
+// ============================================================
+app.use('/api', authRoutes);
+
+// ============================================================
 //                          Server
 // ============================================================
+
+// port
+const port = process.env.PORT || 8000;
+
+app.listen(port, () => {
+	console.log(`====> EcomWork Server running on port ${port}...`);
+});
