@@ -6,37 +6,116 @@ const { errorHandler } = require('../helpers/dbErrorHandler');
 const _ = require('lodash');
 const { OAuth2Client } = require('google-auth-library');
 
-// signup controller
-exports.signup = (req, res) => {
-	// Check if the user already exists
-	User.findOne({ email: req.body.email }).exec((err, foundUser) => {
+// nodemailer
+const { sendEmailWithNodemailer } = require('../helpers/email');
+
+// preSignup controller
+exports.preSignup = (req, res) => {
+	const { name, email, password, role } = req.body;
+
+	User.findOne({ email: email.toLowerCase() }, (err, foundUser) => {
 		if (foundUser) {
 			return res.status(400).json({
 				error: 'Email is already taken'
 			});
 		}
 
-		const { name, email, password, role } = req.body;
+		const token = jwt.sign({ name, email, password, role }, process.env.JWT_ACCOUNT_ACTIVATION, {
+			expiresIn: '10m'
+		});
 
-		let username = shortId.generate();
-		let profile = `${process.env.CLIENT_URL}/profile/${username}`;
+		// Once we generate the token we need to send an email with this token to the user
+		const emailData = {
+			from: process.env.EMAIL_NOREPLY, // MAKE SURE THIS EMAIL IS YOUR GMAIL FOR WHICH YOU GENERATED APP PASSWORD
+			to: email, // WHO SHOULD BE RECEIVING THIS EMAIL? IT SHOULD BE YOUR GMAIL
+			subject: `Account activation link`,
+			html: `
+			<h4>Please use the following link to verify and activate your account:</h4>
+			<p>${process.env.CLIENT_URL}/auth/account/activate/${token}</p>
+			<hr />
+			<p>This email may contain sensitive information. Please do not reply to this email.</p>
+			<p>https://kaymkassai.tech</p>
+		`
+		};
 
-		let newUser = new User({ name, email, password, profile, username, role });
+		sendEmailWithNodemailer(req, res, emailData);
 
-		newUser.save((error, createdUser) => {
+		res.json({
+			message: `Email has been sent to ${email}. Follow the instructions to activate your account.`
+		});
+		// In frontend show this message: Email has been sent to ${email}. Follow the instructions to activate your account.
+	});
+};
+
+// signup controller
+// exports.signup = (req, res) => {
+// 	// Check if the user already exists
+// 	User.findOne({ email: req.body.email }).exec((err, foundUser) => {
+// 		if (foundUser) {
+// 			return res.status(400).json({
+// 				error: 'Email is already taken'
+// 			});
+// 		}
+
+// 		const { name, email, password, role } = req.body;
+
+// 		let username = shortId.generate();
+// 		let profile = `${process.env.CLIENT_URL}/profile/${username}`;
+
+// 		let newUser = new User({ name, email, password, profile, username, role });
+
+// 		newUser.save((error, createdUser) => {
+// 			if (err) {
+// 				if (err) {
+// 					return res.status(400).json({
+// 						error: err
+// 					});
+// 				}
+// 			}
+
+// 			res.json({
+// 				message: 'Signup success! Please login'
+// 			});
+// 		});
+// 	});
+// };
+
+exports.signup = (req, res) => {
+	const token = req.body.token;
+
+	if (token) {
+		// check if it hasn't expire
+		jwt.verify(token, process.env.JWT_ACCOUNT_ACTIVATION, (err, decoded) => {
 			if (err) {
+				return res.status(401).json({
+					error: 'Expired link. Signup again'
+				});
+			}
+
+			const { name, email, password, role } = jwt.decode(token);
+			// generate username and profile
+			let username = shortId.generate();
+			let profile = `${process.env.CLIENT_URL}/profile/${username}`;
+
+			let newUser = new User({ name, email, password, profile, username, role });
+
+			newUser.save((error, createdUser) => {
 				if (err) {
 					return res.status(400).json({
 						error: err
 					});
 				}
-			}
 
-			res.json({
-				message: 'Signup success! Please login'
+				res.json({
+					message: 'Signup success! Please Sign in.'
+				});
 			});
 		});
-	});
+	} else {
+		res.json({
+			message: 'Something went wrong. Please try again.'
+		});
+	}
 };
 
 // signin controller
