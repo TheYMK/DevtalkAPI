@@ -1,10 +1,15 @@
 const express = require('express');
 const router = express.Router();
 // controllers
-const { signup, signin, signout, preSignup } = require('../../controllers/auth');
+const { signup, signin, signout, preSignup, forgotPassword, resetPassword } = require('../../controllers/auth');
 // validators
 const { runValidation } = require('../../validators');
-const { userSignupValidator, userSigninValidator } = require('../../validators/auth');
+const {
+	userSignupValidator,
+	userSigninValidator,
+	forgotPasswordValidator,
+	resetPasswordValidator
+} = require('../../validators/auth');
 
 router.post('/pre-signup', userSignupValidator, runValidation, preSignup);
 
@@ -14,4 +19,7 @@ router.post('/signin', userSigninValidator, runValidation, signin);
 
 router.get('/signout', signout);
 
+router.put('/forgot-password', forgotPasswordValidator, runValidation, forgotPassword);
+
+router.put('/reset-password', resetPasswordValidator, runValidation, resetPassword);
 module.exports = router;
