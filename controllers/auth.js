@@ -193,7 +193,6 @@ exports.adminMiddleware = (req, res, next) => {
 // Freelancer Middleware
 exports.freelancerMiddleware = (req, res, next) => {
 	const freelancerUserId = req.auth._id;
-
 	User.findById({ _id: freelancerUserId }).exec((err, user) => {
 		if (err || !user) {
 			return res.status(400).json({

@@ -11,6 +11,7 @@ require('dotenv').config();
 
 // route importations
 const authRoutes = require('./routes/api/auth');
+const userRoutes = require('./routes/api/user');
 // express app initialization
 const app = express();
 
@@ -42,7 +43,7 @@ if (process.env.NODE_ENV === 'development') {
 //                      Route Middlewares
 // ============================================================
 app.use('/api', authRoutes);
-
+app.use('/api', userRoutes);
 // ============================================================
 //                          Server
 // ============================================================

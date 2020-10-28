@@ -11,15 +11,15 @@ const {
 	resetPasswordValidator
 } = require('../../validators/auth');
 
-router.post('/pre-signup', userSignupValidator, runValidation, preSignup);
+router.post('/auth/pre-signup', userSignupValidator, runValidation, preSignup);
 
-router.post('/signup', signup);
+router.post('/auth/signup', signup);
 
-router.post('/signin', userSigninValidator, runValidation, signin);
+router.post('/auth/signin', userSigninValidator, runValidation, signin);
 
-router.get('/signout', signout);
+router.get('/auth/signout', signout);
 
-router.put('/forgot-password', forgotPasswordValidator, runValidation, forgotPassword);
+router.put('/auth/forgot-password', forgotPasswordValidator, runValidation, forgotPassword);
 
-router.put('/reset-password', resetPasswordValidator, runValidation, resetPassword);
+router.put('/auth/reset-password', resetPasswordValidator, runValidation, resetPassword);
 module.exports = router;
