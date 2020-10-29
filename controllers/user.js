@@ -6,6 +6,13 @@ const formidable = require('formidable');
 const fs = require('fs');
 const { use } = require('../routes/api/user');
 
+// profile controller
+// this is because the below middlewares makes all user information available in req.profile including hashed password and we don't really need it
+exports.read = (req, res) => {
+	req.profile.hashed_password = undefined;
+	return res.json(req.profile);
+};
+
 // freelancer profile controller
 exports.readFreelancerProfile = (req, res) => {
 	let username = req.params.username;

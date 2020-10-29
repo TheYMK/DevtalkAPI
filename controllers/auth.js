@@ -169,6 +169,21 @@ exports.requireSignin = expressJwt({
 	userProperty: 'auth' // user available in req.auth as long as there is a valid token
 });
 
+// Auth middleware
+exports.authMiddleware = (req, res, next) => {
+	const authUserId = req.auth._id;
+	User.findById({ _id: authUserId }).exec((err, user) => {
+		if (err || !user) {
+			return res.status(400).json({
+				error: 'User not found'
+			});
+		}
+
+		req.profile = user;
+		next();
+	});
+};
+
 // Admin middleware
 exports.adminMiddleware = (req, res, next) => {
 	const adminUserId = req.auth._id;
