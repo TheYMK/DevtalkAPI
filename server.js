@@ -13,6 +13,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/api/auth');
 const userRoutes = require('./routes/api/user');
 const formRoutes = require('./routes/api/form');
+const skillRoutes = require('./routes/api/skill');
 // express app initialization
 const app = express();
 
@@ -46,6 +47,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api', formRoutes);
+app.use('/api', skillRoutes);
 // ============================================================
 //                          Server
 // ============================================================
