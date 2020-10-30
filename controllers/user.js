@@ -6,6 +6,10 @@ const formidable = require('formidable');
 const fs = require('fs');
 const { use } = require('../routes/api/user');
 
+//=====================================================
+// 					FREELANCER
+//=====================================================
+
 // profile controller
 // this is because the below middlewares makes all user information available in req.profile including hashed password and we don't really need it
 exports.read = (req, res) => {
@@ -106,6 +110,19 @@ exports.updateFreelancerProfile = (req, res) => {
 	});
 };
 
+exports.deleteFreelancerProfile = async (req, res) => {
+	try {
+		await User.findByIdAndRemove(req.auth._id);
+		return res.json({
+			message: 'profile deleted successfully'
+		});
+	} catch (err) {
+		return res.json(400).json({
+			error: errorHandler(err)
+		});
+	}
+};
+
 exports.photo = (req, res) => {
 	const username = req.params.username;
 
@@ -123,3 +140,7 @@ exports.photo = (req, res) => {
 		}
 	});
 };
+
+//=====================================================
+// 					CLIENT
+//=====================================================

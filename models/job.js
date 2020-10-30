@@ -51,6 +51,10 @@ const jobSchema = new mongoose.Schema(
 		postedBy: {
 			type: ObjectId,
 			ref: 'User'
+		},
+		assignedTo: {
+			type: ObjectId,
+			ref: 'User'
 		}
 	},
 	{ timestamps: true }
